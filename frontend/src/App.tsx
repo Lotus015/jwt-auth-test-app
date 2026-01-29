@@ -2,10 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components';
 import { Dashboard } from './pages/Dashboard';
 import { AuthFlow } from './pages/AuthFlow';
-
-function HeaderStorage() {
-  return <div className="text-gray-500">Header Storage Tests - Coming Soon</div>;
-}
+import { HeaderStorage } from './pages/HeaderStorage';
 
 function CookieStorage() {
   return <div className="text-gray-500">Cookie Storage Tests - Coming Soon</div>;
