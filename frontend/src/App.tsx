@@ -5,10 +5,7 @@ import { AuthFlow } from './pages/AuthFlow';
 import { HeaderStorage } from './pages/HeaderStorage';
 import { CookieStorage } from './pages/CookieStorage';
 import { Guards } from './pages/Guards';
-
-function Algorithms() {
-  return <div className="text-gray-500">Algorithms Tests - Coming Soon</div>;
-}
+import { Algorithms } from './pages/Algorithms';
 
 function ErrorScenarios() {
   return <div className="text-gray-500">Error Scenarios Tests - Coming Soon</div>;
