@@ -56,3 +56,33 @@ Learnings:
 - @UseGuards(JwtSyncGuard) and @UseGuards(JwtAsyncGuard) decorators work with NestJS guard system
 Test results:
 - cd backend && npm run build: PASS
+
+=== Iteration 5 - S5 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Each scenario module can have its own JwtModule.forRoot() configuration (NestJS allows multiple module instances)
+- HeaderModule configured with custom headerName: 'X-Auth-Token' and prefix: 'Token'
+- CookieModule configured with accessToken storage: 'cookie' (instead of 'header')
+- Each scenario module has isolated JWT configuration with different secret keys
+- TokenService.setAccessTokenToStorage() works for both header and cookie storage based on module config
+- TokenService.getAccessTokenFromStorage() reads from correct storage type based on module config
+- Controllers can directly inject JwtSyncService and TokenService from their parent module's JwtModule
+- No need to create separate services - reuse mock users inline for simple scenarios
+- Multiple scenario modules can coexist in AppModule imports array
+Test results:
+- cd backend && npm run build: PASS
+
+=== Iteration 6 - S6 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- RsaModule uses JwtModule.forRoot() with RS256 algorithm and privateKey/publicKey from backend/keys/
+- RSA key options require both privateKey (for signing) and publicKey (for verification)
+- For the AlgorithmsModule, used jsonwebtoken directly to support dynamic algorithm selection
+- Added jsonwebtoken and @types/jsonwebtoken as direct dependencies to backend
+- AlgorithmsController uses parameterized routes POST /algo/:alg/sign and /algo/:alg/verify
+- HMAC algorithms (HS256, HS384, HS512) require secret keys of appropriate length
+- RSA algorithms (RS256, RS384, RS512) share the same RSA key pair, only the hashing differs
+- Using jwt.sign() with { algorithm } option for signing and jwt.verify() with { algorithms: [algorithm] } for verification
+- Algorithm validation done at controller level with BadRequestException for unsupported algorithms
+Test results:
+- cd backend && npm run build: PASS
