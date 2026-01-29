@@ -6,10 +6,7 @@ import { HeaderStorage } from './pages/HeaderStorage';
 import { CookieStorage } from './pages/CookieStorage';
 import { Guards } from './pages/Guards';
 import { Algorithms } from './pages/Algorithms';
-
-function ErrorScenarios() {
-  return <div className="text-gray-500">Error Scenarios Tests - Coming Soon</div>;
-}
+import { ErrorScenarios } from './pages/ErrorScenarios';
 
 function TokenPlayground() {
   return <div className="text-gray-500">Token Playground - Coming Soon</div>;
