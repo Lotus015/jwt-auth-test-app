@@ -1,0 +1,372 @@
+{
+  "project": "JWT Auth Test App",
+  "branchName": "main",
+  "description": "Full-stack test application (NestJS backend + React frontend) to thoroughly test all features of the @block32/jwt-auth package through an interactive dashboard. The backend exposes JWT scenarios as API endpoints, and the frontend provides a clickable UI to run tests and see results.",
+  "userStories": [
+    {
+      "id": "S1",
+      "priority": 1,
+      "title": "Setup monorepo structure with backend and frontend",
+      "description": "Create a monorepo with two directories: 'backend' for NestJS and 'frontend' for React. Setup root package.json with workspace scripts. Initialize both projects with their respective frameworks. Backend should use NestJS with TypeScript, frontend should use Vite + React + TypeScript. Add the local @block32/jwt-auth package to backend as a file dependency from '../jwt-block32'.",
+      "acceptance": [
+        "Root package.json exists with 'dev' script that runs both backend and frontend concurrently",
+        "backend/package.json exists with NestJS dependencies and @block32/jwt-auth as file:../jwt-block32",
+        "frontend/package.json exists with Vite, React 18, TypeScript, Tailwind CSS, axios, react-router-dom",
+        "backend/src/main.ts exists with NestJS bootstrap, cookie-parser, and CORS for localhost:5173",
+        "frontend/src/main.tsx exists with React app entry point",
+        "Running 'npm run dev' from root starts both servers (backend on 3000, frontend on 5173)"
+      ],
+      "tests": ["cd backend && npm run build", "cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S2",
+      "priority": 2,
+      "title": "Setup Tailwind CSS and base layout components",
+      "description": "Configure Tailwind CSS in the frontend. Create a Layout component with a sidebar navigation and main content area. Create common UI components: Button, Card, Badge, StatusIndicator (pass/fail/pending icons). The sidebar should have navigation links for: Dashboard, Auth Flow, Header Storage, Cookie Storage, Guards, Algorithms, Error Scenarios, Token Playground, Run All Tests.",
+      "acceptance": [
+        "tailwind.config.js exists with content paths configured",
+        "frontend/src/index.css imports Tailwind directives",
+        "Layout component renders sidebar + main content area",
+        "Sidebar shows all 9 navigation items with icons",
+        "Button component supports variants: primary, secondary, danger",
+        "Card component has header, body, footer sections",
+        "StatusIndicator shows green checkmark for pass, red X for fail, gray circle for pending",
+        "All components are exported from frontend/src/components/index.ts"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S3",
+      "priority": 3,
+      "title": "Backend auth module with JWT configuration",
+      "description": "Create the auth module in the backend using @block32/jwt-auth. Configure JwtModule.forRoot() with HMAC HS256 algorithm, header storage for access tokens, and cookie storage for refresh tokens. Create AuthController with login, logout, refresh, and me endpoints. Create AuthService with mock user validation. Generate RSA keys in backend/keys/ directory for later use.",
+      "acceptance": [
+        "backend/src/auth/auth.module.ts imports JwtModule.forRoot with HS256 config",
+        "backend/src/auth/auth.controller.ts has POST /auth/login, POST /auth/logout, POST /auth/refresh, GET /auth/me",
+        "backend/src/auth/auth.service.ts validates mock users and returns user object",
+        "POST /auth/login accepts {username, password} and returns {accessToken} in body, sets refresh cookie",
+        "POST /auth/refresh reads refresh cookie and returns new access token",
+        "GET /auth/me returns current user from token payload",
+        "backend/keys/private.pem and public.pem exist (RSA 2048-bit)",
+        "All auth endpoints work when tested with curl"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S4",
+      "priority": 4,
+      "title": "Backend protected routes with guards",
+      "description": "Create a protected module with routes that use JwtSyncGuard and JwtAsyncGuard from @block32/jwt-auth. Create endpoints that return protected data only when a valid token is provided. These endpoints will be used to test guard behavior.",
+      "acceptance": [
+        "backend/src/protected/protected.module.ts exists",
+        "backend/src/protected/protected.controller.ts has GET /protected/sync and GET /protected/async",
+        "GET /protected/sync uses @UseGuards(JwtSyncGuard) decorator",
+        "GET /protected/async uses @UseGuards(JwtAsyncGuard) decorator",
+        "Both endpoints return {message: 'Protected data', user: <payload>} when token is valid",
+        "Both endpoints return 401 Unauthorized when token is missing or invalid",
+        "Guards are properly imported from @block32/jwt-auth"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S5",
+      "priority": 5,
+      "title": "Backend scenario modules for header and cookie storage",
+      "description": "Create scenario modules to test different storage configurations. HeaderModule: separate JwtModule config with header storage, custom header name 'X-Auth-Token', custom prefix 'Token'. CookieModule: separate JwtModule config with cookie storage for access tokens. Each module should have its own controller with login and protected endpoints.",
+      "acceptance": [
+        "backend/src/scenarios/header/header.module.ts has JwtModule with header storage, headerName: 'X-Auth-Token', prefix: 'Token'",
+        "backend/src/scenarios/header/header.controller.ts has POST /header/login and GET /header/protected",
+        "backend/src/scenarios/cookie/cookie.module.ts has JwtModule with cookie storage for access tokens",
+        "backend/src/scenarios/cookie/cookie.controller.ts has POST /cookie/login and GET /cookie/protected",
+        "Header endpoints work with 'X-Auth-Token: Token <jwt>' header",
+        "Cookie endpoints set and read access token from cookie",
+        "All scenario modules are imported in AppModule"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S6",
+      "priority": 6,
+      "title": "Backend RSA and algorithms module",
+      "description": "Create modules to test RSA algorithms and all supported algorithms. RsaModule: uses RS256 with the generated RSA keys. AlgorithmsModule: has endpoints for each algorithm (HS256, HS384, HS512, RS256, RS384, RS512) to sign and verify tokens.",
+      "acceptance": [
+        "backend/src/scenarios/rsa/rsa.module.ts uses RS256 with keys from backend/keys/",
+        "backend/src/scenarios/rsa/rsa.controller.ts has POST /rsa/login, GET /rsa/protected, POST /rsa/sign, POST /rsa/verify",
+        "backend/src/scenarios/algorithms/algorithms.module.ts exists",
+        "backend/src/scenarios/algorithms/algorithms.controller.ts has POST /algo/:alg/sign and POST /algo/:alg/verify for each algorithm",
+        "RSA endpoints correctly use private key for signing and public key for verification",
+        "Algorithm endpoints accept {payload} and return {token} or {valid, payload}"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S7",
+      "priority": 7,
+      "title": "Backend error trigger endpoints",
+      "description": "Create an error module with endpoints that intentionally trigger each custom error from @block32/jwt-auth. This allows the frontend to test error handling. Each endpoint should trigger a specific error type.",
+      "acceptance": [
+        "backend/src/scenarios/errors/errors.module.ts exists",
+        "backend/src/scenarios/errors/errors.controller.ts has endpoints for each error type",
+        "GET /error/secret-key triggers SecretKeyError",
+        "GET /error/undefined-token triggers UndefinedTokenError",
+        "GET /error/wrong-header triggers WrongAuthHeaderTypeError",
+        "GET /error/empty-cookie triggers EmptyCookieError",
+        "GET /error/refresh-token triggers RefreshTokenError",
+        "Each endpoint returns {error: 'ErrorClassName', message: '...'} with appropriate status code"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S8",
+      "priority": 8,
+      "title": "Backend utility endpoints for token operations",
+      "description": "Create a utility module with endpoints for manual token operations: decode (without verification), sign (with custom payload), verify (check any token). These power the Token Playground page.",
+      "acceptance": [
+        "backend/src/util/util.module.ts exists",
+        "backend/src/util/util.controller.ts has POST /util/decode, POST /util/sign, POST /util/verify",
+        "POST /util/decode accepts {token} and returns decoded payload without verification",
+        "POST /util/sign accepts {payload, algorithm?, tokenType?} and returns {token}",
+        "POST /util/verify accepts {token} and returns {valid: boolean, payload?, error?}",
+        "GET /util/config returns current JWT module configuration (sanitized, no secrets)"
+      ],
+      "tests": ["cd backend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S9",
+      "priority": 9,
+      "title": "Frontend API service and auth context",
+      "description": "Create the API service layer in the frontend using axios with credentials. Create an AuthContext with React Context API to manage auth state (tokens, user). Create custom hooks: useAuth (auth state and actions), useApi (base API calls).",
+      "acceptance": [
+        "frontend/src/services/api.ts exports axios instance with baseURL localhost:3000 and withCredentials",
+        "frontend/src/services/api.ts exports authApi object with login, logout, refresh, me methods",
+        "frontend/src/context/AuthContext.tsx provides auth state: accessToken, user, isAuthenticated",
+        "frontend/src/context/AuthContext.tsx provides actions: login, logout, refresh",
+        "frontend/src/hooks/useAuth.ts returns auth context values",
+        "frontend/src/hooks/useApi.ts provides generic API call wrapper with loading/error state",
+        "AuthProvider wraps the app in main.tsx"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S10",
+      "priority": 10,
+      "title": "Frontend Dashboard page",
+      "description": "Create the Dashboard page as the main landing page. It should show: Quick action buttons (Login, Logout, Refresh, Run All Tests), current auth state panel showing token info and decoded payload, test summary stats (placeholder for now), and recent test results list (placeholder).",
+      "acceptance": [
+        "frontend/src/pages/Dashboard.tsx exists and is the default route",
+        "Dashboard shows 4 quick action buttons: Login, Logout, Refresh, Run All Tests",
+        "Dashboard shows current auth state: access token (truncated), expiration countdown, decoded user",
+        "Login button opens a modal/form for username/password",
+        "Logout button clears auth state",
+        "Refresh button calls refresh endpoint and updates token",
+        "Auth state panel updates in real-time when tokens change",
+        "React Router is configured in App.tsx with routes for all pages"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S11",
+      "priority": 11,
+      "title": "Frontend test runner infrastructure",
+      "description": "Create the test runner infrastructure. Define test cases in a central file with id, name, category, endpoint, method, expectedStatus. Create TestCard component to display a single test with Run button and result. Create useTestRunner hook to execute tests and track results.",
+      "acceptance": [
+        "frontend/src/services/testCases.ts defines all test cases organized by category",
+        "Each test case has: id, name, description, category, endpoint, method, headers?, body?, expectedStatus, expectedError?",
+        "frontend/src/components/TestCard.tsx displays test info with Run button",
+        "TestCard shows status: idle (gray), running (spinner), pass (green), fail (red)",
+        "TestCard expands to show request/response details after running",
+        "frontend/src/hooks/useTestRunner.ts manages test execution and results",
+        "useTestRunner returns: runTest(id), runCategory(category), runAll(), results, isRunning"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S12",
+      "priority": 12,
+      "title": "Frontend Auth Flow page",
+      "description": "Create the Auth Flow page to test login/logout/refresh scenarios. Show test cards for: Login with valid credentials, Login with invalid credentials, Logout, Refresh token, Access /auth/me endpoint. Each test should be runnable individually with results displayed.",
+      "acceptance": [
+        "frontend/src/pages/AuthFlow.tsx exists with route /auth-flow",
+        "Page title is 'Auth Flow Tests' with Run All button",
+        "Shows 5 test cards: Login (valid), Login (invalid), Logout, Refresh, Get Me",
+        "Each test card can be run individually",
+        "Test results show response status, body, and duration",
+        "Login test updates auth context on success",
+        "Failed tests show error details"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S13",
+      "priority": 13,
+      "title": "Frontend Header Storage page",
+      "description": "Create the Header Storage page to test header-based authentication scenarios. Show test cards for: Bearer token in Authorization header, Custom header name (X-Auth-Token), Custom prefix (Token instead of Bearer), Missing header, Malformed header.",
+      "acceptance": [
+        "frontend/src/pages/HeaderStorage.tsx exists with route /header-storage",
+        "Page shows test cards for all header storage scenarios",
+        "Tests use the /header/* endpoints from the backend",
+        "Custom header name test sends token in X-Auth-Token header",
+        "Custom prefix test sends 'Token <jwt>' instead of 'Bearer <jwt>'",
+        "Missing header test expects 401 with UndefinedTokenError",
+        "Each test shows the actual headers sent in the request details"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S14",
+      "priority": 14,
+      "title": "Frontend Cookie Storage page",
+      "description": "Create the Cookie Storage page to test cookie-based authentication scenarios. Show test cards for: Access token in cookie, Refresh token in httpOnly cookie, Cookie options verification, Missing cookie error. Include a Cookie Viewer component that shows current cookies.",
+      "acceptance": [
+        "frontend/src/pages/CookieStorage.tsx exists with route /cookie-storage",
+        "Page shows test cards for all cookie storage scenarios",
+        "Tests use the /cookie/* endpoints from the backend",
+        "CookieViewer component shows current document.cookie values",
+        "Note shown that httpOnly cookies are not visible in JavaScript",
+        "Missing cookie test expects 401 with EmptyCookieError",
+        "Test results show Set-Cookie headers from responses"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S15",
+      "priority": 15,
+      "title": "Frontend Guards page",
+      "description": "Create the Guards page to test JwtSyncGuard and JwtAsyncGuard behavior. Show test cards for: Valid token with sync guard, Valid token with async guard, No token with guards, Expired token with guards, Invalid signature with guards.",
+      "acceptance": [
+        "frontend/src/pages/Guards.tsx exists with route /guards",
+        "Page has two sections: JwtSyncGuard Tests and JwtAsyncGuard Tests",
+        "Tests use /protected/sync and /protected/async endpoints",
+        "Valid token tests pass and show user data",
+        "No token tests expect 401 Unauthorized",
+        "Expired token tests expect 401 (uses a pre-generated expired token)",
+        "Invalid signature tests expect 401 (uses a token signed with wrong secret)"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S16",
+      "priority": 16,
+      "title": "Frontend Algorithms page",
+      "description": "Create the Algorithms page to test all supported algorithms. Show tabs for HMAC (HS256, HS384, HS512) and RSA (RS256, RS384, RS512). Each algorithm has Sign and Verify tests. Use the /algo/* endpoints.",
+      "acceptance": [
+        "frontend/src/pages/Algorithms.tsx exists with route /algorithms",
+        "Page has two tabs: HMAC Algorithms and RSA Algorithms",
+        "HMAC tab shows HS256, HS384, HS512 sections",
+        "RSA tab shows RS256, RS384, RS512 sections",
+        "Each algorithm section has Sign and Verify test cards",
+        "Sign tests POST to /algo/:alg/sign with a payload",
+        "Verify tests POST to /algo/:alg/verify with the signed token",
+        "Results show the generated tokens and verification status"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S17",
+      "priority": 17,
+      "title": "Frontend Error Scenarios page",
+      "description": "Create the Error Scenarios page to test all custom error types from @block32/jwt-auth. Show a test card for each error type that triggers the corresponding backend endpoint. Display the error class name and message.",
+      "acceptance": [
+        "frontend/src/pages/ErrorScenarios.tsx exists with route /error-scenarios",
+        "Page shows test cards for: SecretKeyError, UndefinedTokenError, WrongAuthHeaderTypeError, EmptyCookieError, RefreshTokenError",
+        "Each test triggers the corresponding /error/* endpoint",
+        "Test results show error type and message",
+        "Cards are color-coded (expect failure = success for these tests)",
+        "Page explains that these tests verify error handling works correctly"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S18",
+      "priority": 18,
+      "title": "Frontend Token Playground page",
+      "description": "Create the Token Playground page for manual token operations. Include: JSON editor for payload, algorithm selector, Sign button. Token input field, Verify and Decode buttons. Display decoded header and payload. Show token expiration countdown.",
+      "acceptance": [
+        "frontend/src/pages/TokenPlayground.tsx exists with route /token-playground",
+        "Sign Token section has: payload JSON textarea, algorithm dropdown, token type dropdown, Sign button",
+        "Sign result shows the generated JWT token with copy button",
+        "Verify/Decode section has: token input textarea, Verify button, Decode button",
+        "Verify shows: valid/invalid status, decoded payload if valid, error if invalid",
+        "Decode shows: header JSON, payload JSON (without verification)",
+        "Token expiration shows countdown timer if exp claim exists",
+        "Uses /util/* endpoints for all operations"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S19",
+      "priority": 19,
+      "title": "Frontend Run All Tests page",
+      "description": "Create the Run All Tests page that executes the entire test suite. Show progress indicator, summary stats (total, passed, failed), and detailed results list. Allow filtering results by status.",
+      "acceptance": [
+        "frontend/src/pages/AllTests.tsx exists with route /all-tests",
+        "Page has prominent 'Run All Tests' button",
+        "Running shows progress: 'Running test X of Y...' with progress bar",
+        "Summary shows: Total tests, Passed (green), Failed (red)",
+        "Results list shows all tests with status icons",
+        "Filter buttons: All, Passed, Failed",
+        "Each result is expandable to show request/response details",
+        "Failed tests are highlighted and shown first",
+        "Total duration shown at the end"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    },
+    {
+      "id": "S20",
+      "priority": 20,
+      "title": "Add state viewer panel and polish UI",
+      "description": "Add a persistent state viewer panel to the layout that shows current auth state. Polish all pages with consistent styling, loading states, and error handling. Ensure the sidebar highlights the current page. Add responsive design for smaller screens.",
+      "acceptance": [
+        "StateViewer component shows: current access token (truncated), refresh token status, decoded user, expiration countdown",
+        "StateViewer updates in real-time when auth state changes",
+        "StateViewer is always visible in the layout (right side or bottom)",
+        "Sidebar highlights current active route",
+        "All buttons have loading spinners when operations are in progress",
+        "Error messages are displayed in red with dismiss button",
+        "Layout is responsive and works on smaller screens",
+        "Consistent color scheme: green for success, red for failure, blue for primary actions"
+      ],
+      "tests": ["cd frontend && npm run build"],
+      "passes": false,
+      "completedAt": null
+    }
+  ]
+}
