@@ -146,3 +146,82 @@ Learnings:
 - Button component supports disabled state with loading text pattern ("Logging out..." etc.)
 Test results:
 - cd frontend && npm run build: PASS
+
+=== Iteration 11 - S11 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- testCases.ts organizes test cases by category: auth-flow, header-storage, cookie-storage, guards, algorithms, error-scenarios
+- Each TestCase interface has: id, name, description, category, endpoint, method, headers?, body?, expectedStatus, expectedError?
+- Added requiresAuth and customHeaderToken flags to handle different auth scenarios
+- TestCard component shows status: idle (gray circle), running (spinner), pass (green check), fail (red X)
+- TestCard uses compound Card component pattern and expands to show request/response details
+- useTestRunner hook uses useState and useCallback for state management
+- Hook tracks results in Record<string, TestResult>, runningTestId, and isRunning flags
+- executeTest uses axios request() method for flexible HTTP method support
+- TypeScript requires `!== undefined` check for unknown type values in JSX conditionals (not just truthy check)
+- Performance.now() provides sub-millisecond timing for test duration
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 12 - S12 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- AuthFlow.tsx reuses TestCard and useTestRunner from S11 test runner infrastructure
+- getTestsByCategory('auth-flow') filters test cases by category
+- Login test updates auth context on success using setAccessToken from useAuth hook
+- Logout test clears auth context by calling setAccessToken(null)
+- Refresh test updates auth context with new access token from response
+- runCategory runs all tests in category sequentially, returns TestResult[]
+- TypeScript requires type assertion for response.data (as { accessToken?: string })
+- Page follows pattern: header with title and Run All button, then test cards
+- useTestRunner's runTest and runCategory are async, allowing post-run auth context updates
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 13 - S13 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- HeaderStorage.tsx follows same pattern as AuthFlow.tsx: header with Run All button, then test cards
+- Test cases updated to include 6 header scenarios: login, bearer auth, custom header name, custom prefix, missing, malformed
+- Header scenario uses 'admin'/'admin123' credentials (different from main auth which uses 'testuser'/'password123')
+- Need to maintain separate tokens: main auth accessToken and header scenario token (headerToken state)
+- useTestRunner.runTest accepts third parameter customToken for tests with customHeaderToken flag
+- customHeaderToken tests send 'X-Auth-Token: Token <token>' header format
+- requiresAuth tests send 'Authorization: Bearer <token>' header format
+- Info panel explains the different header formats being tested
+- Token state panel shows current tokens truncated to 50 chars
+- Backend /header/login returns 200 status (not 201) - important for expected status in test cases
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 14 - S14 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- CookieStorage.tsx page created with test cards for 4 cookie storage scenarios
+- CookieViewer component uses setInterval to refresh cookie list every second
+- document.cookie only shows non-httpOnly cookies (refresh tokens are hidden)
+- Set-Cookie headers are not accessible via JavaScript for security reasons
+- Backend /cookie/login uses 200 status (corrected from expected 201)
+- Cookie tests use 'admin'/'admin123' credentials (same as header scenario)
+- Need to clear cookies before missing cookie test by calling /auth/logout
+- httpOnly note explains why refresh tokens are not visible in the Cookie Viewer
+- Cookies are automatically sent with requests when withCredentials: true (configured in api.ts)
+- Test cases flow: login -> access token test -> refresh test -> clear cookies -> missing test
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 15 - S15 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Guards.tsx page created with two sections: JwtSyncGuard Tests and JwtAsyncGuard Tests
+- Page tests 8 scenarios: valid/missing/expired/invalid-signature for both sync and async guards
+- Pre-generated expired token uses exp: 1609459200 (2021-01-01) to ensure it's always expired
+- Pre-generated invalid signature token has tampered signature that won't verify
+- Updated testCases.ts to add guard-sync-expired, guard-sync-invalid-signature, guard-async-expired, guard-async-invalid-signature
+- TypeScript requires converting null to undefined when passing to function expecting optional param: `token || undefined`
+- Guards use /protected/sync and /protected/async endpoints from backend's protected module
+- Following same page pattern as CookieStorage.tsx: header with Run All button, info panels, then test cards
+- Test cards reuse TestCard component and useTestRunner hook from S11
+- Login automatically triggers before valid token tests if user is not authenticated
+Test results:
+- cd frontend && npm run build: PASS
