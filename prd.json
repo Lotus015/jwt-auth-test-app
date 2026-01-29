@@ -16,9 +16,13 @@
         "frontend/src/main.tsx exists with React app entry point",
         "Running 'npm run dev' from root starts both servers (backend on 3000, frontend on 5173)"
       ],
-      "tests": ["cd backend && npm run build", "cd frontend && npm run build"],
-      "passes": false,
-      "completedAt": null
+      "tests": [
+        "cd backend && npm run build",
+        "cd frontend && npm run build"
+      ],
+      "passes": true,
+      "completedAt": "2026-01-29T11:58:30Z",
+      "durationSecs": 129
     },
     {
       "id": "S2",
@@ -35,7 +39,9 @@
         "StatusIndicator shows green checkmark for pass, red X for fail, gray circle for pending",
         "All components are exported from frontend/src/components/index.ts"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -54,7 +60,9 @@
         "backend/keys/private.pem and public.pem exist (RSA 2048-bit)",
         "All auth endpoints work when tested with curl"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -72,7 +80,9 @@
         "Both endpoints return 401 Unauthorized when token is missing or invalid",
         "Guards are properly imported from @block32/jwt-auth"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -90,7 +100,9 @@
         "Cookie endpoints set and read access token from cookie",
         "All scenario modules are imported in AppModule"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -107,7 +119,9 @@
         "RSA endpoints correctly use private key for signing and public key for verification",
         "Algorithm endpoints accept {payload} and return {token} or {valid, payload}"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -126,7 +140,9 @@
         "GET /error/refresh-token triggers RefreshTokenError",
         "Each endpoint returns {error: 'ErrorClassName', message: '...'} with appropriate status code"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -143,7 +159,9 @@
         "POST /util/verify accepts {token} and returns {valid: boolean, payload?, error?}",
         "GET /util/config returns current JWT module configuration (sanitized, no secrets)"
       ],
-      "tests": ["cd backend && npm run build"],
+      "tests": [
+        "cd backend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -161,7 +179,9 @@
         "frontend/src/hooks/useApi.ts provides generic API call wrapper with loading/error state",
         "AuthProvider wraps the app in main.tsx"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -180,7 +200,9 @@
         "Auth state panel updates in real-time when tokens change",
         "React Router is configured in App.tsx with routes for all pages"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -198,7 +220,9 @@
         "frontend/src/hooks/useTestRunner.ts manages test execution and results",
         "useTestRunner returns: runTest(id), runCategory(category), runAll(), results, isRunning"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -216,7 +240,9 @@
         "Login test updates auth context on success",
         "Failed tests show error details"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -234,7 +260,9 @@
         "Missing header test expects 401 with UndefinedTokenError",
         "Each test shows the actual headers sent in the request details"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -252,7 +280,9 @@
         "Missing cookie test expects 401 with EmptyCookieError",
         "Test results show Set-Cookie headers from responses"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -270,7 +300,9 @@
         "Expired token tests expect 401 (uses a pre-generated expired token)",
         "Invalid signature tests expect 401 (uses a token signed with wrong secret)"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -289,7 +321,9 @@
         "Verify tests POST to /algo/:alg/verify with the signed token",
         "Results show the generated tokens and verification status"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -306,7 +340,9 @@
         "Cards are color-coded (expect failure = success for these tests)",
         "Page explains that these tests verify error handling works correctly"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -325,7 +361,9 @@
         "Token expiration shows countdown timer if exp claim exists",
         "Uses /util/* endpoints for all operations"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -345,7 +383,9 @@
         "Failed tests are highlighted and shown first",
         "Total duration shown at the end"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     },
@@ -364,7 +404,9 @@
         "Layout is responsive and works on smaller screens",
         "Consistent color scheme: green for success, red for failure, blue for primary actions"
       ],
-      "tests": ["cd frontend && npm run build"],
+      "tests": [
+        "cd frontend && npm run build"
+      ],
       "passes": false,
       "completedAt": null
     }
