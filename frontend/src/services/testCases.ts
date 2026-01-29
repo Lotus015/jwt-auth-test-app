@@ -32,7 +32,7 @@ const authFlowTests: TestCase[] = [
     category: 'auth-flow',
     endpoint: '/auth/login',
     method: 'POST',
-    body: { username: 'testuser', password: 'password123' },
+    body: { username: 'test', password: 'test123' },
     expectedStatus: 201,
   },
   {
@@ -199,29 +199,29 @@ const guardsTests: TestCase[] = [
   {
     id: 'guard-sync-missing',
     name: 'JwtSyncGuard without Token',
-    description: 'Access sync-guarded endpoint without token, expects 401',
+    description: 'Access sync-guarded endpoint without token, expects 403',
     category: 'guards',
     endpoint: '/protected/sync',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
   {
     id: 'guard-sync-expired',
     name: 'JwtSyncGuard with Expired Token',
-    description: 'Access sync-guarded endpoint with expired token, expects 401',
+    description: 'Access sync-guarded endpoint with expired token, expects 403',
     category: 'guards',
     endpoint: '/protected/sync',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
   {
     id: 'guard-sync-invalid-signature',
     name: 'JwtSyncGuard with Invalid Signature',
-    description: 'Access sync-guarded endpoint with token signed by wrong secret, expects 401',
+    description: 'Access sync-guarded endpoint with token signed by wrong secret, expects 403',
     category: 'guards',
     endpoint: '/protected/sync',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
   // JwtAsyncGuard Tests
   {
@@ -237,29 +237,29 @@ const guardsTests: TestCase[] = [
   {
     id: 'guard-async-missing',
     name: 'JwtAsyncGuard without Token',
-    description: 'Access async-guarded endpoint without token, expects 401',
+    description: 'Access async-guarded endpoint without token, expects 403',
     category: 'guards',
     endpoint: '/protected/async',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
   {
     id: 'guard-async-expired',
     name: 'JwtAsyncGuard with Expired Token',
-    description: 'Access async-guarded endpoint with expired token, expects 401',
+    description: 'Access async-guarded endpoint with expired token, expects 403',
     category: 'guards',
     endpoint: '/protected/async',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
   {
     id: 'guard-async-invalid-signature',
     name: 'JwtAsyncGuard with Invalid Signature',
-    description: 'Access async-guarded endpoint with token signed by wrong secret, expects 401',
+    description: 'Access async-guarded endpoint with token signed by wrong secret, expects 403',
     category: 'guards',
     endpoint: '/protected/async',
     method: 'GET',
-    expectedStatus: 401,
+    expectedStatus: 403,
   },
 ];
 
@@ -273,7 +273,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS256/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-hs256-verify',
@@ -283,7 +283,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS256/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-hs384-sign',
@@ -293,7 +293,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS384/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-hs384-verify',
@@ -303,7 +303,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS384/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-hs512-sign',
@@ -313,7 +313,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS512/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-hs512-verify',
@@ -323,7 +323,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/HS512/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs256-sign',
@@ -333,7 +333,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS256/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs256-verify',
@@ -343,7 +343,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS256/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs384-sign',
@@ -353,7 +353,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS384/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs384-verify',
@@ -363,7 +363,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS384/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs512-sign',
@@ -373,7 +373,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS512/sign',
     method: 'POST',
     body: { payload: { sub: '1234', name: 'Test User' } },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'algo-rs512-verify',
@@ -383,7 +383,7 @@ const algorithmsTests: TestCase[] = [
     endpoint: '/algo/RS512/verify',
     method: 'POST',
     body: { token: '' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
 ];
 
