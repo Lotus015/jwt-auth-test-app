@@ -8,9 +8,10 @@ import { CookieModule } from './scenarios/cookie/cookie.module';
 import { RsaModule } from './scenarios/rsa/rsa.module';
 import { AlgorithmsModule } from './scenarios/algorithms/algorithms.module';
 import { ErrorsModule } from './scenarios/errors/errors.module';
+import { UtilModule } from './util/util.module';
 
 @Module({
-  imports: [AuthModule, ProtectedModule, HeaderModule, CookieModule, RsaModule, AlgorithmsModule, ErrorsModule],
+  imports: [AuthModule, ProtectedModule, HeaderModule, CookieModule, RsaModule, AlgorithmsModule, ErrorsModule, UtilModule],
   controllers: [AppController],
   providers: [AppService],
 })
