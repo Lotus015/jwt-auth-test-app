@@ -8,10 +8,7 @@ import { Guards } from './pages/Guards';
 import { Algorithms } from './pages/Algorithms';
 import { ErrorScenarios } from './pages/ErrorScenarios';
 import { TokenPlayground } from './pages/TokenPlayground';
-
-function AllTests() {
-  return <div className="text-gray-500">Run All Tests - Coming Soon</div>;
-}
+import { AllTests } from './pages/AllTests';
 
 function App() {
   return (
