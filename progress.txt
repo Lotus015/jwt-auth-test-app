@@ -225,3 +225,57 @@ Learnings:
 - Login automatically triggers before valid token tests if user is not authenticated
 Test results:
 - cd frontend && npm run build: PASS
+
+=== Iteration 16 - S16 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Algorithms.tsx page created with tabbed interface (HMAC and RSA tabs)
+- HMAC tab displays HS256, HS384, HS512 algorithm sections
+- RSA tab displays RS256, RS384, RS512 algorithm sections
+- Each algorithm section has Sign and Verify test cards
+- Sign tests POST to /algo/:alg/sign with { payload: { sub: '1234', name: 'Test User' } }
+- Verify tests need the signed token from sign test - stored in signedTokens state
+- Custom runVerifyTest function makes direct API call with the stored token
+- Test cases in testCases.ts already defined from S11 (algo-*-sign and algo-*-verify)
+- useTestRunner's runTest doesn't support custom body override, so created custom verify handler
+- Tab navigation uses useState<AlgorithmTab> with 'hmac' | 'rsa' union type
+- Info panels explain HMAC (symmetric) vs RSA (asymmetric) cryptography differences
+- Each algorithm section shows truncated token after signing for verification reference
+- Button variant="secondary" for individual algorithm runs, primary for tab-wide runs
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 17 - S17 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- ErrorScenarios.tsx page created to test all custom error types from @block32/jwt-auth
+- Test cases for error-scenarios category already defined in testCases.ts from S11
+- Five error types tested: SecretKeyError, UndefinedTokenError, WrongAuthHeaderTypeError, EmptyCookieError, RefreshTokenError
+- Each test triggers corresponding /error/* endpoint defined in backend's errors.controller.ts
+- Page includes explanation panel clarifying that "pass = error triggered correctly"
+- Added error info section showing status codes and descriptions for each error type
+- Color-coded status badges for different error types (purple, orange, yellow, blue, red)
+- Test statistics panel shows completed/passed/failed counts
+- Backend endpoints reference section lists all /error/* endpoints
+- Simple implementation using existing TestCard, useTestRunner, and getTestsByCategory utilities
+- No need for special handling - tests just verify expected status code matches response
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 18 - S18 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- TokenPlayground.tsx page created with two main sections: Sign Token and Verify/Decode
+- Sign Token section includes: JSON textarea for payload, algorithm dropdown (HS256-512, RS256-512), token type dropdown (access/refresh), Sign button
+- Generated token displays with copy button and "Use in Verify/Decode" helper link
+- Verify/Decode section has: token input textarea, Verify button, Decode button
+- Verify shows valid/invalid status with green/red styling, decoded payload on success, error message on failure
+- Decode shows header JSON (purple background), payload JSON (blue background), and signature separately without verification
+- Expiration countdown uses useEffect with setInterval, extracts exp claim from decoded payload or verify result
+- Countdown displays hours/minutes/seconds with color coding (green > 5min, yellow < 5min, red = expired)
+- Uses /util/sign, /util/verify, /util/decode endpoints from backend's util.controller.ts
+- Updated App.tsx to import TokenPlayground component (removed placeholder function)
+- API Reference card added at bottom showing all three util endpoints
+- Responsive grid layout: single column on mobile, two columns on large screens
+Test results:
+- cd frontend && npm run build: PASS
