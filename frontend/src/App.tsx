@@ -1,11 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components';
 import { Dashboard } from './pages/Dashboard';
-
-// Placeholder pages for future stories
-function AuthFlow() {
-  return <div className="text-gray-500">Auth Flow Tests - Coming Soon</div>;
-}
+import { AuthFlow } from './pages/AuthFlow';
 
 function HeaderStorage() {
   return <div className="text-gray-500">Header Storage Tests - Coming Soon</div>;
