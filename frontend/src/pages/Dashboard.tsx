@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Button, Card, CardHeader, CardBody } from '../components';
+import { useNavigate } from 'react-router-dom';
+import { Button, Card, CardHeader, CardBody, ErrorMessage } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { LoginModal } from '../components/LoginModal';
 
@@ -30,6 +31,7 @@ function formatTimeRemaining(seconds: number): string {
 }
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { accessToken, user, isAuthenticated, logout, refresh } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -86,22 +88,14 @@ export function Dashboard() {
   };
 
   const handleRunAllTests = () => {
-    // Navigate to all-tests page - placeholder for now
-    window.location.href = '/all-tests';
+    navigate('/all-tests');
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex justify-between items-center">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
-            &times;
-          </button>
-        </div>
-      )}
+      {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {/* Quick Action Buttons */}
       <Card>
@@ -120,16 +114,20 @@ export function Dashboard() {
             <Button
               variant="danger"
               onClick={handleLogout}
-              disabled={!isAuthenticated || isLoggingOut}
+              disabled={!isAuthenticated}
+              loading={isLoggingOut}
+              loadingText="Logging out..."
             >
-              {isLoggingOut ? 'Logging out...' : 'Logout'}
+              Logout
             </Button>
             <Button
               variant="secondary"
               onClick={handleRefresh}
-              disabled={!isAuthenticated || isRefreshing}
+              disabled={!isAuthenticated}
+              loading={isRefreshing}
+              loadingText="Refreshing..."
             >
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              Refresh
             </Button>
             <Button variant="primary" onClick={handleRunAllTests}>
               Run All Tests
@@ -221,7 +219,7 @@ export function Dashboard() {
           <h2 className="text-lg font-semibold">Test Summary</h2>
         </CardHeader>
         <CardBody>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
             <div className="p-4 bg-gray-50 rounded">
               <div className="text-2xl font-bold text-gray-600">--</div>
               <div className="text-sm text-gray-500">Total Tests</div>

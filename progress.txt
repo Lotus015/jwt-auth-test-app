@@ -279,3 +279,44 @@ Learnings:
 - Responsive grid layout: single column on mobile, two columns on large screens
 Test results:
 - cd frontend && npm run build: PASS
+
+=== Iteration 19 - S19 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- AllTests.tsx page created with comprehensive test suite runner
+- Used existing useTestRunner hook with runAll() method for executing all tests
+- Progress indicator shows 'Running test X of Y...' with animated progress bar and percentage
+- Summary stats displayed in 4-column grid: Total, Completed, Passed (green), Failed (red)
+- Filter buttons for All/Passed/Failed with dynamic counts and styled toggle states
+- Results grouped by category using testsByCategory computed from filteredTests
+- Created custom TestResultRow component for compact display (lighter than TestCard)
+- Expandable details show Request (URL, method, headers, body) and Response (status, body, error)
+- Failed tests sorted first using sort() with custom comparator checking result.passed
+- Failed tests highlighted with red border (border-red-300) and red background (bg-red-50)
+- Total duration tracked with performance.now() at start/end of runAll execution
+- Duration formatted as ms (<1000) or seconds with 2 decimal places
+- Ready state shows info panel with test counts per category using categoryLabels
+- Summary footer at bottom shows pass/fail status with "Run Again" button
+- Removed unused TestCard import to fix TypeScript error TS6133
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 20 - S20 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- StateViewer component created with real-time auth state display (access token truncated, refresh token status, decoded user, expiration countdown)
+- StateViewer updates automatically via useEffect with setInterval for countdown timer
+- Layout updated to include StateViewer panel on right side (desktop) or bottom (mobile)
+- Responsive design implemented: mobile hamburger menu, collapsible sidebar, responsive grids
+- NavLink 'end' prop used for root path to prevent highlighting on all routes
+- Button component enhanced with loading prop and loadingText for spinner states
+- LoadingSpinner SVG component with animate-spin class for consistent loading indicators
+- ErrorMessage component created with red styling and dismiss button (X icon)
+- Added 'success' variant to Button (green for success actions)
+- Consistent color scheme enforced: blue for primary, green for success, red for danger/failure
+- Mobile StateViewer toggles between collapsed (status bar) and expanded (full panel)
+- Updated Dashboard, AuthFlow, AllTests pages to use new Button loading prop
+- All pages now use ErrorMessage component for dismissable error displays
+- Responsive grid layouts: grid-cols-1 sm:grid-cols-3 for stats, flex-col sm:flex-row for headers
+Test results:
+- cd frontend && npm run build: PASS

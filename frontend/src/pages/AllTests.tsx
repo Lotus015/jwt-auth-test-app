@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { testCases, categoryLabels, TestCategory } from '../services/testCases';
-import { Button, StatusIndicator } from '../components';
+import { Button, StatusIndicator, ErrorMessage } from '../components';
 import { useTestRunner, TestResult } from '../hooks/useTestRunner';
 import { useAuth } from '../hooks/useAuth';
 
@@ -12,6 +12,7 @@ export function AllTests() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [totalDuration, setTotalDuration] = useState<number | null>(null);
   const [expandedTestId, setExpandedTestId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -87,10 +88,15 @@ export function AllTests() {
   }, [filteredTests]);
 
   const handleRunAll = async () => {
+    setError(null);
     clearResults();
     setTotalDuration(null);
     const startTime = performance.now();
-    await runAll(accessToken || undefined);
+    try {
+      await runAll(accessToken || undefined);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Test suite execution failed');
+    }
     setTotalDuration(Math.round(performance.now() - startTime));
   };
 
@@ -98,16 +104,22 @@ export function AllTests() {
     clearResults();
     setTotalDuration(null);
     setExpandedTestId(null);
+    setError(null);
   };
 
   const handleRunTest = async (id: string) => {
-    await runTest(id, accessToken || undefined);
+    setError(null);
+    try {
+      await runTest(id, accessToken || undefined);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Test execution failed');
+    }
   };
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Run All Tests</h1>
           <p className="text-gray-500 mt-1">
@@ -120,11 +132,20 @@ export function AllTests() {
               Clear Results
             </Button>
           )}
-          <Button onClick={handleRunAll} disabled={isRunning} className="px-6 py-3 text-lg">
-            {isRunning ? 'Running...' : 'Run All Tests'}
+          <Button
+            onClick={handleRunAll}
+            disabled={isRunning}
+            loading={isRunning}
+            loadingText="Running..."
+            className="px-6 py-3 text-lg"
+          >
+            Run All Tests
           </Button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {/* Progress Bar - Show when running */}
       {isRunning && (
@@ -151,21 +172,21 @@ export function AllTests() {
 
       {/* Summary Stats */}
       {stats.completed > 0 && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-gray-700">{stats.total}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-700">{stats.total}</div>
             <div className="text-sm text-gray-500">Total Tests</div>
           </div>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-gray-600">{stats.completed}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-600">{stats.completed}</div>
             <div className="text-sm text-gray-500">Completed</div>
           </div>
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-green-700">{stats.passed}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-green-700">{stats.passed}</div>
             <div className="text-sm text-green-600">Passed</div>
           </div>
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-red-700">{stats.failed}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-red-700">{stats.failed}</div>
             <div className="text-sm text-red-600">Failed</div>
           </div>
         </div>
@@ -173,9 +194,9 @@ export function AllTests() {
 
       {/* Total Duration */}
       {totalDuration !== null && !isRunning && (
-        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span className="text-gray-700 font-medium">Total Duration</span>
-          <span className="text-2xl font-bold text-gray-800">
+          <span className="text-xl sm:text-2xl font-bold text-gray-800">
             {totalDuration < 1000
               ? `${totalDuration}ms`
               : `${(totalDuration / 1000).toFixed(2)}s`}
@@ -185,7 +206,7 @@ export function AllTests() {
 
       {/* Filter Buttons */}
       {stats.completed > 0 && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-gray-500 mr-2">Filter:</span>
           <button
             onClick={() => setFilter('all')}
@@ -270,7 +291,7 @@ export function AllTests() {
 
             return (
               <div key={category} className="space-y-3">
-                <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-2 gap-2">
                   <h2 className="text-lg font-semibold text-gray-900">
                     {categoryLabels[category as TestCategory]}
                   </h2>
@@ -320,7 +341,7 @@ export function AllTests() {
               : 'bg-red-50 border border-red-200'
           }`}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <StatusIndicator status={stats.failed === 0 ? 'pass' : 'fail'} size="lg" />
               <div>
@@ -407,9 +428,9 @@ function TestResultRow({
   return (
     <div className={`rounded-lg border ${result?.passed === false ? 'border-red-300' : 'border-gray-200'}`}>
       <div
-        className={`flex items-center justify-between p-3 ${bgColor} rounded-t-lg ${
+        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 ${bgColor} rounded-t-lg ${
           !isExpanded ? 'rounded-b-lg' : ''
-        } cursor-pointer transition-colors`}
+        } cursor-pointer transition-colors gap-2`}
         onClick={result ? onToggleExpand : undefined}
       >
         <div className="flex items-center gap-3">
@@ -418,11 +439,11 @@ function TestResultRow({
             <span className="font-medium text-gray-900">{testCase.name}</span>
             <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
               <span className="font-mono bg-gray-200 px-1.5 py-0.5 rounded">{testCase.method}</span>
-              <span className="font-mono">{testCase.endpoint}</span>
+              <span className="font-mono truncate max-w-[200px] sm:max-w-none">{testCase.endpoint}</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-8 sm:ml-0">
           {result && <span className="text-sm text-gray-500">{result.duration}ms</span>}
           {result && (
             <svg
@@ -441,9 +462,10 @@ function TestResultRow({
               onRun(testCase.id);
             }}
             disabled={isRunning}
+            loading={isRunning}
             className="text-xs px-2 py-1"
           >
-            {isRunning ? '...' : 'Run'}
+            Run
           </Button>
         </div>
       </div>
@@ -457,7 +479,7 @@ function TestResultRow({
             <div className="space-y-1 text-sm">
               <div>
                 <span className="text-gray-500">URL:</span>{' '}
-                <span className="font-mono">{result.request.url}</span>
+                <span className="font-mono break-all">{result.request.url}</span>
               </div>
               <div>
                 <span className="text-gray-500">Method:</span>{' '}

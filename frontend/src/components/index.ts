@@ -6,3 +6,5 @@ export { Layout } from './Layout';
 export { LoginModal } from './LoginModal';
 export { TestCard } from './TestCard';
 export { CookieViewer } from './CookieViewer';
+export { StateViewer } from './StateViewer';
+export { ErrorMessage } from './ErrorMessage';
