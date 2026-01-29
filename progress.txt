@@ -86,3 +86,16 @@ Learnings:
 - Algorithm validation done at controller level with BadRequestException for unsupported algorithms
 Test results:
 - cd backend && npm run build: PASS
+
+=== Iteration 7 - S7 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Custom errors are exported from @block32/jwt-auth: SecretKeyError, UndefinedTokenError, WrongAuthHeaderTypeError, EmptyCookieError, RefreshTokenError
+- ErrorsController uses HttpException to return structured error responses {error: 'ErrorClassName', message: '...'}
+- For WrongAuthHeaderTypeError and EmptyCookieError, the errors are triggered naturally by calling tokenService methods without proper headers/cookies
+- SecretKeyError and RefreshTokenError are manually thrown since they require specific configuration conditions not easily triggered via endpoints
+- Each endpoint uses appropriate HTTP status codes: 400 for WrongAuthHeaderTypeError, 401 for UndefinedTokenError and EmptyCookieError, 500 for SecretKeyError and RefreshTokenError
+- TokenService.getAccessTokenFromStorage() throws WrongAuthHeaderTypeError when Authorization header is missing (for header storage)
+- TokenService.getRefreshTokenFromStorage() throws EmptyCookieError when refresh cookie is missing
+Test results:
+- cd backend && npm run build: PASS
