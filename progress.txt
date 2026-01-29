@@ -11,3 +11,48 @@ Learnings:
 Test results:
 - cd backend && npm run build: PASS
 - cd frontend && npm run build: PASS
+
+=== Iteration 2 - S2 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Tailwind CSS and PostCSS were already configured from S1
+- tailwind.config.js has content paths: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"]
+- index.css already has @tailwind base/components/utilities directives
+- Created 5 UI components in frontend/src/components/
+- Button: supports primary, secondary, danger variants with Tailwind classes
+- Card: uses compound component pattern with CardHeader, CardBody, CardFooter
+- Badge: supports default, success, warning, error, info variants
+- StatusIndicator: uses SVG icons for pass (green checkmark), fail (red X), pending (gray circle)
+- Layout: sidebar with 9 NavLink items using react-router-dom, icons are inline SVGs
+- All components exported from frontend/src/components/index.ts barrel file
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 3 - S3 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- @block32/jwt-auth package uses JwtModule.forRoot() with JwtBlock32Options
+- accessToken options require storage type ('header' or 'cookie') and keyOptions
+- refreshToken always uses cookie storage with RefreshCookieOptions (httpOnly: true, sameSite: 'strict')
+- JwtSyncService provides signAccessSync, signRefreshSync, verifyAccessSync, verifyRefreshSync methods
+- TokenService provides setAccessTokenToStorage, setRefreshTokenToStorage, getAccessTokenFromStorage, getRefreshTokenFromStorage
+- For header storage, use headerOptions with headerName and prefix
+- For cookie storage, use cookieOptions with cookieName, httpOnly, secure, sameSite, path, maxAge
+- Mock users can be simple in-memory array for testing purposes
+- RSA keys generated with: openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem
+- NestJS controllers need @Res({ passthrough: true }) to set cookies while also returning a body
+Test results:
+- cd backend && npm run build: PASS
+
+=== Iteration 4 - S4 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- JwtSyncGuard and JwtAsyncGuard are exported from @block32/jwt-auth
+- Guards only verify token validity and return true/false, they don't attach payload to request
+- To get user payload in protected routes, need to manually call tokenService.getAccessTokenFromStorage() and verify
+- JwtAsyncGuard uses jwtAsyncService.verifyAccessAsync() which returns a Promise
+- JwtSyncGuard uses jwtSyncService.verifyAccessSync() which returns synchronously
+- ProtectedModule needs to import AuthModule to get access to JWT services (they are provided by JwtModule which is imported in AuthModule)
+- @UseGuards(JwtSyncGuard) and @UseGuards(JwtAsyncGuard) decorators work with NestJS guard system
+Test results:
+- cd backend && npm run build: PASS
