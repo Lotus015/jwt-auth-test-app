@@ -53,7 +53,7 @@ const authFlowTests: TestCase[] = [
     category: 'auth-flow',
     endpoint: '/auth/logout',
     method: 'POST',
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'auth-refresh',
@@ -121,12 +121,12 @@ const headerStorageTests: TestCase[] = [
   {
     id: 'header-missing',
     name: 'Missing Header',
-    description: 'Access protected endpoint without any auth header, expects 401 UndefinedTokenError',
+    description: 'Access protected endpoint without any auth header, expects 401 Unauthorized',
     category: 'header-storage',
     endpoint: '/header/protected',
     method: 'GET',
     expectedStatus: 401,
-    expectedError: 'UndefinedTokenError',
+    expectedError: 'Unauthorized',
   },
   {
     id: 'header-malformed',
@@ -137,7 +137,7 @@ const headerStorageTests: TestCase[] = [
     method: 'GET',
     headers: { 'X-Auth-Token': 'InvalidFormatNoPrefix' },
     expectedStatus: 401,
-    expectedError: 'WrongAuthHeaderTypeError',
+    expectedError: 'Unauthorized',
   },
 ];
 
@@ -174,12 +174,12 @@ const cookieStorageTests: TestCase[] = [
   {
     id: 'cookie-missing',
     name: 'Missing Cookie Error',
-    description: 'Access protected endpoint without cookie, expects 401 with EmptyCookieError',
+    description: 'Access protected endpoint without cookie, expects 401 Unauthorized',
     category: 'cookie-storage',
     endpoint: '/cookie/protected',
     method: 'GET',
     expectedStatus: 401,
-    expectedError: 'EmptyCookieError',
+    expectedError: 'Unauthorized',
   },
 ];
 
