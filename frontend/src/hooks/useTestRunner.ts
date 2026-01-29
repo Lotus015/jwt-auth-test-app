@@ -46,6 +46,37 @@ export function useTestRunner(): UseTestRunnerReturn {
         data: testCase.body,
       };
 
+      // If test needs a token from an endpoint, fetch it first
+      if (testCase.tokenFromEndpoint) {
+        try {
+          // Check if it's a login endpoint (needs credentials) or token generator
+          const isLoginEndpoint = testCase.tokenFromEndpoint.includes('/login');
+          const body = isLoginEndpoint
+            ? { username: 'admin', password: 'admin123' }
+            : {};
+
+          const tokenResponse = await api.post(testCase.tokenFromEndpoint, body);
+          // Login endpoints return 'accessToken', edge-case generators return 'token'
+          const fetchedToken = tokenResponse.data?.accessToken || tokenResponse.data?.token;
+          if (fetchedToken) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${fetchedToken}`,
+            };
+          }
+        } catch {
+          // If token generation fails, proceed without it
+        }
+      }
+
+      // Use specific token if provided in test case
+      if (testCase.useToken) {
+        config.headers = {
+          ...config.headers,
+          Authorization: `Bearer ${testCase.useToken}`,
+        };
+      }
+
       // Add Authorization header if test requires auth
       if (testCase.requiresAuth && accessToken) {
         config.headers = {

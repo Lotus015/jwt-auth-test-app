@@ -77,7 +77,9 @@ export function AllTests() {
       'cookie-storage': [],
       guards: [],
       algorithms: [],
-      'error-scenarios': [],
+      'async-jwt': [],
+      'async-config': [],
+      'edge-cases': [],
     };
 
     filteredTests.forEach((test) => {
@@ -488,7 +490,7 @@ function TestResultRow({
               {result.request.headers && Object.keys(result.request.headers).length > 0 && (
                 <div>
                   <span className="text-gray-500">Headers:</span>
-                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto">
+                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto whitespace-pre-wrap break-all">
                     {JSON.stringify(result.request.headers, null, 2)}
                   </pre>
                 </div>
@@ -496,7 +498,7 @@ function TestResultRow({
               {result.request.body && (
                 <div>
                   <span className="text-gray-500">Body:</span>
-                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto">
+                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto whitespace-pre-wrap break-all">
                     {JSON.stringify(result.request.body, null, 2)}
                   </pre>
                 </div>
@@ -526,7 +528,7 @@ function TestResultRow({
               {result.response.data !== undefined && (
                 <div>
                   <span className="text-gray-500">Body:</span>
-                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto max-h-32">
+                  <pre className="mt-1 text-xs bg-white p-2 rounded border overflow-x-auto whitespace-pre-wrap break-all max-h-32 overflow-y-auto">
                     {JSON.stringify(result.response.data, null, 2)}
                   </pre>
                 </div>
@@ -534,7 +536,7 @@ function TestResultRow({
               {result.error && (
                 <div>
                   <span className="text-gray-500">Error:</span>
-                  <pre className="mt-1 text-xs bg-red-50 p-2 rounded border border-red-200 overflow-x-auto text-red-600">
+                  <pre className="mt-1 text-xs bg-red-50 p-2 rounded border border-red-200 overflow-x-auto whitespace-pre-wrap break-all text-red-600">
                     {result.error}
                   </pre>
                 </div>

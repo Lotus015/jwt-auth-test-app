@@ -9,9 +9,26 @@ import { RsaModule } from './scenarios/rsa/rsa.module';
 import { AlgorithmsModule } from './scenarios/algorithms/algorithms.module';
 import { ErrorsModule } from './scenarios/errors/errors.module';
 import { UtilModule } from './util/util.module';
+import { AsyncModule } from './scenarios/async/async.module';
+import { EdgeCasesModule } from './scenarios/edge-cases/edge-cases.module';
+import { AsyncConfigModule } from './scenarios/async-config/async-config.module';
+import { FactoryConfigModule } from './scenarios/factory-config/factory-config.module';
 
 @Module({
-  imports: [AuthModule, ProtectedModule, HeaderModule, CookieModule, RsaModule, AlgorithmsModule, ErrorsModule, UtilModule],
+  imports: [
+    AuthModule,
+    ProtectedModule,
+    HeaderModule,
+    CookieModule,
+    RsaModule,
+    AlgorithmsModule,
+    ErrorsModule,
+    UtilModule,
+    AsyncModule,
+    EdgeCasesModule,
+    AsyncConfigModule,
+    FactoryConfigModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

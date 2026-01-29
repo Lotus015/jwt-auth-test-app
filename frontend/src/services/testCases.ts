@@ -4,7 +4,9 @@ export type TestCategory =
   | 'cookie-storage'
   | 'guards'
   | 'algorithms'
-  | 'error-scenarios';
+  | 'async-jwt'
+  | 'async-config'
+  | 'edge-cases';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -21,7 +23,24 @@ export interface TestCase {
   expectedError?: string;
   requiresAuth?: boolean;
   customHeaderToken?: boolean;
+  // For edge cases: use this specific token instead of the auth token
+  useToken?: string;
+  // For edge cases: first call this endpoint to get a token, then use it
+  tokenFromEndpoint?: string;
 }
+
+// Pre-generated bad tokens for testing (these are intentionally invalid)
+const MALFORMED_TOKENS = {
+  noDots: 'thisisnotavalidtokenatall',
+  oneDot: 'header.payload',
+  emptyParts: '..',
+  invalidBase64: 'not!valid!base64.also!not!valid.definitely!not!valid',
+  truncated: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOjF9', // missing signature
+  // "none" algorithm attack token
+  noneAlgorithm: 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjEsInVzZXJuYW1lIjoiaGFja2VyIiwicm9sZSI6ImFkbWluIn0.',
+  // Token with wrong algorithm claim (RS256 header but fake signature)
+  algorithmSwitch: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiYXR0YWNrZXIifQ.ZmFrZS1zaWduYXR1cmU',
+};
 
 // Auth Flow Tests
 const authFlowTests: TestCase[] = [
@@ -47,6 +66,16 @@ const authFlowTests: TestCase[] = [
     expectedError: 'Unauthorized',
   },
   {
+    id: 'auth-login-missing-fields',
+    name: 'Login with Missing Fields',
+    description: 'Attempts login without username/password',
+    category: 'auth-flow',
+    endpoint: '/auth/login',
+    method: 'POST',
+    body: {},
+    expectedStatus: 401,
+  },
+  {
     id: 'auth-logout',
     name: 'Logout',
     description: 'Logs out the current user, clears refresh token cookie',
@@ -56,9 +85,9 @@ const authFlowTests: TestCase[] = [
     expectedStatus: 200,
   },
   {
-    id: 'auth-refresh',
-    name: 'Refresh Token',
-    description: 'Requires prior login cookie - expects 401 without cookie',
+    id: 'auth-refresh-no-cookie',
+    name: 'Refresh without Cookie',
+    description: 'Attempts refresh without refresh token cookie - expects 401',
     category: 'auth-flow',
     endpoint: '/auth/refresh',
     method: 'POST',
@@ -72,7 +101,16 @@ const authFlowTests: TestCase[] = [
     endpoint: '/auth/me',
     method: 'GET',
     expectedStatus: 200,
-    requiresAuth: true,
+    tokenFromEndpoint: '/auth/login',
+  },
+  {
+    id: 'auth-me-no-token',
+    name: 'Get User without Token',
+    description: 'Attempts to get current user without auth token - expects 401',
+    category: 'auth-flow',
+    endpoint: '/auth/me',
+    method: 'GET',
+    expectedStatus: 401,
   },
 ];
 
@@ -96,7 +134,7 @@ const headerStorageTests: TestCase[] = [
     endpoint: '/auth/me',
     method: 'GET',
     expectedStatus: 200,
-    requiresAuth: true,
+    tokenFromEndpoint: '/auth/login',
   },
   {
     id: 'header-custom-name',
@@ -193,30 +231,12 @@ const guardsTests: TestCase[] = [
     endpoint: '/protected/sync',
     method: 'GET',
     expectedStatus: 200,
-    requiresAuth: true,
+    tokenFromEndpoint: '/auth/login',
   },
   {
     id: 'guard-sync-missing',
     name: 'JwtSyncGuard without Token',
     description: 'Access sync-guarded endpoint without token, expects 403',
-    category: 'guards',
-    endpoint: '/protected/sync',
-    method: 'GET',
-    expectedStatus: 403,
-  },
-  {
-    id: 'guard-sync-expired',
-    name: 'JwtSyncGuard with Expired Token',
-    description: 'Access sync-guarded endpoint with expired token, expects 403',
-    category: 'guards',
-    endpoint: '/protected/sync',
-    method: 'GET',
-    expectedStatus: 403,
-  },
-  {
-    id: 'guard-sync-invalid-signature',
-    name: 'JwtSyncGuard with Invalid Signature',
-    description: 'Access sync-guarded endpoint with token signed by wrong secret, expects 403',
     category: 'guards',
     endpoint: '/protected/sync',
     method: 'GET',
@@ -231,30 +251,12 @@ const guardsTests: TestCase[] = [
     endpoint: '/protected/async',
     method: 'GET',
     expectedStatus: 200,
-    requiresAuth: true,
+    tokenFromEndpoint: '/auth/login',
   },
   {
     id: 'guard-async-missing',
     name: 'JwtAsyncGuard without Token',
     description: 'Access async-guarded endpoint without token, expects 403',
-    category: 'guards',
-    endpoint: '/protected/async',
-    method: 'GET',
-    expectedStatus: 403,
-  },
-  {
-    id: 'guard-async-expired',
-    name: 'JwtAsyncGuard with Expired Token',
-    description: 'Access async-guarded endpoint with expired token, expects 403',
-    category: 'guards',
-    endpoint: '/protected/async',
-    method: 'GET',
-    expectedStatus: 403,
-  },
-  {
-    id: 'guard-async-invalid-signature',
-    name: 'JwtAsyncGuard with Invalid Signature',
-    description: 'Access async-guarded endpoint with token signed by wrong secret, expects 403',
     category: 'guards',
     endpoint: '/protected/async',
     method: 'GET',
@@ -386,57 +388,348 @@ const algorithmsTests: TestCase[] = [
   },
 ];
 
-// Error Scenarios Tests
-const errorScenariosTests: TestCase[] = [
+// Async JWT Tests - Testing JwtAsyncService
+const asyncJwtTests: TestCase[] = [
   {
-    id: 'error-secret-key',
-    name: 'SecretKeyError',
-    description: 'Triggers SecretKeyError when secret key is misconfigured',
-    category: 'error-scenarios',
-    endpoint: '/error/secret-key',
-    method: 'GET',
-    expectedStatus: 500,
-    expectedError: 'SecretKeyError',
+    id: 'async-login',
+    name: 'Async Login',
+    description: 'Login using JwtAsyncService for token signing',
+    category: 'async-jwt',
+    endpoint: '/async/login',
+    method: 'POST',
+    body: { username: 'admin', password: 'admin123' },
+    expectedStatus: 200,
   },
   {
-    id: 'error-undefined-token',
-    name: 'UndefinedTokenError',
-    description: 'Triggers UndefinedTokenError when token is missing',
-    category: 'error-scenarios',
-    endpoint: '/error/undefined-token',
-    method: 'GET',
+    id: 'async-login-invalid',
+    name: 'Async Login Invalid',
+    description: 'Async login with invalid credentials',
+    category: 'async-jwt',
+    endpoint: '/async/login',
+    method: 'POST',
+    body: { username: 'wrong', password: 'wrong' },
     expectedStatus: 401,
-    expectedError: 'UndefinedTokenError',
   },
   {
-    id: 'error-wrong-header',
-    name: 'WrongAuthHeaderTypeError',
-    description: 'Triggers WrongAuthHeaderTypeError when header format is invalid',
-    category: 'error-scenarios',
-    endpoint: '/error/wrong-header',
+    id: 'async-me',
+    name: 'Async Get User',
+    description: 'Get current user using JwtAsyncService for verification',
+    category: 'async-jwt',
+    endpoint: '/async/me',
     method: 'GET',
-    expectedStatus: 400,
-    expectedError: 'WrongAuthHeaderTypeError',
+    expectedStatus: 200,
+    tokenFromEndpoint: '/auth/login',
   },
   {
-    id: 'error-empty-cookie',
-    name: 'EmptyCookieError',
-    description: 'Triggers EmptyCookieError when cookie is empty or missing',
-    category: 'error-scenarios',
-    endpoint: '/error/empty-cookie',
-    method: 'GET',
-    expectedStatus: 500,
-    expectedError: 'EmptyCookieError',
+    id: 'async-sign-custom',
+    name: 'Async Sign Custom Payload',
+    description: 'Sign a custom payload asynchronously',
+    category: 'async-jwt',
+    endpoint: '/async/sign',
+    method: 'POST',
+    body: { payload: { custom: 'data', userId: 123 } },
+    expectedStatus: 200,
   },
   {
-    id: 'error-refresh-token',
-    name: 'RefreshTokenError',
-    description: 'Triggers RefreshTokenError when refresh token is invalid',
-    category: 'error-scenarios',
-    endpoint: '/error/refresh-token',
+    id: 'async-verify-valid',
+    name: 'Async Verify Valid Token',
+    description: 'Verify a valid token asynchronously (requires token from login)',
+    category: 'async-jwt',
+    endpoint: '/async/verify',
+    method: 'POST',
+    body: { token: '' }, // Token will be filled by test runner
+    expectedStatus: 200,
+  },
+  {
+    id: 'async-decode',
+    name: 'Async Decode Token',
+    description: 'Decode a token without verification',
+    category: 'async-jwt',
+    endpoint: '/async/decode',
+    method: 'POST',
+    body: { token: '' }, // Any token works for decode
+    expectedStatus: 200,
+  },
+];
+
+// Async Config Tests - Testing JwtModule.forRootAsync() patterns
+const asyncConfigTests: TestCase[] = [
+  // useClass pattern tests (AsyncConfigModule)
+  {
+    id: 'async-config-login',
+    name: 'forRootAsync Login (useClass)',
+    description: 'Login via module configured with forRootAsync({ useClass: JwtConfigService })',
+    category: 'async-config',
+    endpoint: '/async-config/login',
+    method: 'POST',
+    body: { username: 'admin', password: 'admin123' },
+    expectedStatus: 200,
+  },
+  {
+    id: 'async-config-login-invalid',
+    name: 'forRootAsync Login Invalid (useClass)',
+    description: 'Invalid login via forRootAsync configured module',
+    category: 'async-config',
+    endpoint: '/async-config/login',
+    method: 'POST',
+    body: { username: 'wrong', password: 'wrong' },
+    expectedStatus: 401,
+  },
+  {
+    id: 'async-config-login-sync',
+    name: 'forRootAsync Login Sync (useClass)',
+    description: 'Login using sync service from forRootAsync configured module',
+    category: 'async-config',
+    endpoint: '/async-config/login-sync',
+    method: 'POST',
+    body: { username: 'user', password: 'user123' },
+    expectedStatus: 200,
+  },
+  {
+    id: 'async-config-protected',
+    name: 'forRootAsync Protected (useClass)',
+    description: 'Access protected endpoint with token from same module (different secret than main auth)',
+    category: 'async-config',
+    endpoint: '/async-config/protected',
     method: 'GET',
-    expectedStatus: 500,
-    expectedError: 'RefreshTokenError',
+    expectedStatus: 200,
+    tokenFromEndpoint: '/async-config/login', // Get token from same module
+  },
+  {
+    id: 'async-config-protected-no-token',
+    name: 'forRootAsync Protected No Token',
+    description: 'Access forRootAsync protected endpoint without token - should be 403',
+    category: 'async-config',
+    endpoint: '/async-config/protected',
+    method: 'GET',
+    expectedStatus: 403,
+  },
+  {
+    id: 'async-config-protected-sync',
+    name: 'forRootAsync Protected Sync (useClass)',
+    description: 'Access sync-guarded endpoint with token from same module',
+    category: 'async-config',
+    endpoint: '/async-config/protected-sync',
+    method: 'GET',
+    expectedStatus: 200,
+    tokenFromEndpoint: '/async-config/login',
+  },
+  {
+    id: 'async-config-info',
+    name: 'forRootAsync Config Info',
+    description: 'Get module configuration info (useClass pattern)',
+    category: 'async-config',
+    endpoint: '/async-config/info',
+    method: 'GET',
+    expectedStatus: 200,
+  },
+  // useFactory pattern tests (FactoryConfigModule)
+  {
+    id: 'factory-config-login',
+    name: 'forRootAsync Login (useFactory)',
+    description: 'Login via module configured with forRootAsync({ useFactory, inject: [ConfigService] })',
+    category: 'async-config',
+    endpoint: '/factory-config/login',
+    method: 'POST',
+    body: { username: 'admin', password: 'admin123' },
+    expectedStatus: 200,
+  },
+  {
+    id: 'factory-config-login-invalid',
+    name: 'forRootAsync Login Invalid (useFactory)',
+    description: 'Invalid login via useFactory configured module',
+    category: 'async-config',
+    endpoint: '/factory-config/login',
+    method: 'POST',
+    body: { username: 'wrong', password: 'wrong' },
+    expectedStatus: 401,
+  },
+  {
+    id: 'factory-config-protected',
+    name: 'forRootAsync Protected (useFactory)',
+    description: 'Access protected endpoint with token from useFactory module',
+    category: 'async-config',
+    endpoint: '/factory-config/protected',
+    method: 'GET',
+    expectedStatus: 200,
+    tokenFromEndpoint: '/factory-config/login',
+  },
+  {
+    id: 'factory-config-protected-no-token',
+    name: 'forRootAsync Protected No Token (useFactory)',
+    description: 'Access useFactory protected endpoint without token - should be 403',
+    category: 'async-config',
+    endpoint: '/factory-config/protected',
+    method: 'GET',
+    expectedStatus: 403,
+  },
+  {
+    id: 'factory-config-protected-sync',
+    name: 'forRootAsync Protected Sync (useFactory)',
+    description: 'Access sync-guarded endpoint with token from useFactory module',
+    category: 'async-config',
+    endpoint: '/factory-config/protected-sync',
+    method: 'GET',
+    expectedStatus: 200,
+    tokenFromEndpoint: '/factory-config/login',
+  },
+  {
+    id: 'factory-config-info',
+    name: 'forRootAsync Config Info (useFactory)',
+    description: 'Get module configuration info (useFactory pattern)',
+    category: 'async-config',
+    endpoint: '/factory-config/info',
+    method: 'GET',
+    expectedStatus: 200,
+  },
+];
+
+// Edge Cases - Real bad requests to real endpoints
+const edgeCasesTests: TestCase[] = [
+  // Malformed token tests against /protected/sync
+  {
+    id: 'edge-malformed-no-dots',
+    name: 'Malformed Token (No Dots)',
+    description: 'Send a token without dots to /protected/sync - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.noDots}` },
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-malformed-one-dot',
+    name: 'Malformed Token (One Dot)',
+    description: 'Send a token with only one dot to /protected/sync - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.oneDot}` },
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-malformed-empty-parts',
+    name: 'Malformed Token (Empty Parts)',
+    description: 'Send a token with empty parts (..) to /protected/sync - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.emptyParts}` },
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-malformed-invalid-base64',
+    name: 'Malformed Token (Invalid Base64)',
+    description: 'Send a token with invalid base64 to /protected/sync - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.invalidBase64}` },
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-malformed-truncated',
+    name: 'Malformed Token (Truncated)',
+    description: 'Send a truncated token (missing signature) to /protected/async - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/async',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.truncated}` },
+    expectedStatus: 403,
+  },
+  // Security attack vectors
+  {
+    id: 'edge-none-algorithm',
+    name: 'None Algorithm Attack',
+    description: 'Send a token with "none" algorithm to /protected/sync - MUST be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.noneAlgorithm}` },
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-algorithm-switch',
+    name: 'Algorithm Switch Attack',
+    description: 'Send a token claiming RS256 but with fake signature - MUST be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/async',
+    method: 'GET',
+    headers: { Authorization: `Bearer ${MALFORMED_TOKENS.algorithmSwitch}` },
+    expectedStatus: 403,
+  },
+  // Wrong secret token (generated dynamically via endpoint)
+  {
+    id: 'edge-wrong-secret-sync',
+    name: 'Wrong Secret (Sync Guard)',
+    description: 'Use token signed with wrong secret on /protected/sync - should fail signature verification',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    tokenFromEndpoint: '/edge-cases/generate/wrong-secret',
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-wrong-secret-async',
+    name: 'Wrong Secret (Async Guard)',
+    description: 'Use token signed with wrong secret on /protected/async - should fail signature verification',
+    category: 'edge-cases',
+    endpoint: '/protected/async',
+    method: 'GET',
+    tokenFromEndpoint: '/edge-cases/generate/wrong-secret',
+    expectedStatus: 403,
+  },
+  // Expired token tests
+  {
+    id: 'edge-expired-sync',
+    name: 'Expired Token (Sync Guard)',
+    description: 'Use expired token on /protected/sync - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    tokenFromEndpoint: '/edge-cases/generate/expired',
+    expectedStatus: 403,
+  },
+  {
+    id: 'edge-expired-async',
+    name: 'Expired Token (Async Guard)',
+    description: 'Use expired token on /protected/async - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/async',
+    method: 'GET',
+    tokenFromEndpoint: '/edge-cases/generate/expired',
+    expectedStatus: 403,
+  },
+  // Auth header format tests
+  {
+    id: 'edge-no-bearer-prefix',
+    name: 'Missing Bearer Prefix',
+    description: 'Send Authorization header without "Bearer" prefix - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/auth/me',
+    method: 'GET',
+    headers: { Authorization: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOjF9.signature' },
+    expectedStatus: 401,
+  },
+  {
+    id: 'edge-wrong-prefix',
+    name: 'Wrong Auth Prefix',
+    description: 'Send Authorization header with wrong prefix (Basic) - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/auth/me',
+    method: 'GET',
+    headers: { Authorization: 'Basic eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOjF9.signature' },
+    expectedStatus: 401,
+  },
+  {
+    id: 'edge-empty-token',
+    name: 'Empty Token Value',
+    description: 'Send Authorization header with empty token - should be rejected',
+    category: 'edge-cases',
+    endpoint: '/protected/sync',
+    method: 'GET',
+    headers: { Authorization: 'Bearer ' },
+    expectedStatus: 403,
   },
 ];
 
@@ -447,7 +740,9 @@ export const testCases: TestCase[] = [
   ...cookieStorageTests,
   ...guardsTests,
   ...algorithmsTests,
-  ...errorScenariosTests,
+  ...asyncJwtTests,
+  ...asyncConfigTests,
+  ...edgeCasesTests,
 ];
 
 // Helper to get tests by category
@@ -467,7 +762,9 @@ export const categoryLabels: Record<TestCategory, string> = {
   'cookie-storage': 'Cookie Storage',
   guards: 'Guards',
   algorithms: 'Algorithms',
-  'error-scenarios': 'Error Scenarios',
+  'async-jwt': 'Async JWT',
+  'async-config': 'forRootAsync',
+  'edge-cases': 'Edge Cases',
 };
 
 // Get all categories

@@ -6,7 +6,7 @@ import { HeaderStorage } from './pages/HeaderStorage';
 import { CookieStorage } from './pages/CookieStorage';
 import { Guards } from './pages/Guards';
 import { Algorithms } from './pages/Algorithms';
-import { ErrorScenarios } from './pages/ErrorScenarios';
+import { EdgeCases } from './pages/EdgeCases';
 import { TokenPlayground } from './pages/TokenPlayground';
 import { AllTests } from './pages/AllTests';
 
@@ -21,7 +21,7 @@ function App() {
           <Route path="/cookie-storage" element={<CookieStorage />} />
           <Route path="/guards" element={<Guards />} />
           <Route path="/algorithms" element={<Algorithms />} />
-          <Route path="/error-scenarios" element={<ErrorScenarios />} />
+          <Route path="/edge-cases" element={<EdgeCases />} />
           <Route path="/token-playground" element={<TokenPlayground />} />
           <Route path="/all-tests" element={<AllTests />} />
         </Routes>
