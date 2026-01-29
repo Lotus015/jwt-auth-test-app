@@ -5,3 +5,4 @@ export { StatusIndicator } from './StatusIndicator';
 export { Layout } from './Layout';
 export { LoginModal } from './LoginModal';
 export { TestCard } from './TestCard';
+export { CookieViewer } from './CookieViewer';

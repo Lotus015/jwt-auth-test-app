@@ -3,10 +3,7 @@ import { Layout } from './components';
 import { Dashboard } from './pages/Dashboard';
 import { AuthFlow } from './pages/AuthFlow';
 import { HeaderStorage } from './pages/HeaderStorage';
-
-function CookieStorage() {
-  return <div className="text-gray-500">Cookie Storage Tests - Coming Soon</div>;
-}
+import { CookieStorage } from './pages/CookieStorage';
 
 function Guards() {
   return <div className="text-gray-500">Guards Tests - Coming Soon</div>;
