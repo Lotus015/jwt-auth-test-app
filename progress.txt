@@ -99,3 +99,50 @@ Learnings:
 - TokenService.getRefreshTokenFromStorage() throws EmptyCookieError when refresh cookie is missing
 Test results:
 - cd backend && npm run build: PASS
+
+=== Iteration 8 - S8 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- UtilModule created as a standalone module (no JwtModule dependency needed)
+- Uses jsonwebtoken directly for flexible token operations without framework constraints
+- POST /util/decode uses jwt.decode() with { complete: true } to get header, payload, and signature
+- POST /util/sign accepts optional algorithm (defaults to HS256) and tokenType (access or refresh)
+- POST /util/verify first decodes to get algorithm from header, then verifies with appropriate key
+- GET /util/config returns sanitized configuration (no actual secrets exposed)
+- TypeScript required `as unknown as Record<string, unknown>` for JwtHeader type conversion
+- RSA keys are read from backend/keys/ directory (same as AlgorithmsModule)
+- HMAC secrets are separate from other modules to maintain isolation
+Test results:
+- cd backend && npm run build: PASS
+
+=== Iteration 9 - S9 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Created api.ts with axios instance configured with baseURL: 'http://localhost:3000' and withCredentials: true
+- authApi exports object with login, logout, refresh, me methods for auth operations
+- AuthContext uses React Context API with createContext, useState, useCallback, useMemo
+- AuthState includes accessToken, user, isAuthenticated (derived from accessToken)
+- AuthActions provides login, logout, refresh, and setAccessToken methods
+- useAuth hook simply uses useContext with error check if used outside AuthProvider
+- useApi hook provides generic API wrapper with loading, error, data state management
+- useApi returns execute function that merges config and handles axios errors
+- AuthProvider wraps app in main.tsx, imports from context/AuthContext
+- TypeScript strict mode catches unused imports (React was unused in AuthContext)
+Test results:
+- cd frontend && npm run build: PASS
+
+=== Iteration 10 - S10 - 2026-01-29 ===
+Status: COMPLETE
+Learnings:
+- Dashboard.tsx created with 4 quick action buttons: Login, Logout, Refresh, Run All Tests
+- Auth state panel shows: status badge, truncated access token, expiration countdown, decoded user and payload
+- Expiration countdown uses useEffect with setInterval, clears on unmount or token change
+- JWT payload decoded client-side using atob() and JSON.parse() (no verification needed for display)
+- LoginModal component uses controlled form with useState for username/password
+- Modal has overlay with fixed positioning, closes on successful login or cancel
+- React Router configured in App.tsx with BrowserRouter, Routes, Route from react-router-dom
+- Placeholder pages for future stories (AuthFlow, HeaderStorage, etc.) return simple "Coming Soon" divs
+- Layout component wraps all routes and provides sidebar navigation with NavLink
+- Button component supports disabled state with loading text pattern ("Logging out..." etc.)
+Test results:
+- cd frontend && npm run build: PASS
