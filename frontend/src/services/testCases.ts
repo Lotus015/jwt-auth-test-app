@@ -33,7 +33,7 @@ const authFlowTests: TestCase[] = [
     endpoint: '/auth/login',
     method: 'POST',
     body: { username: 'test', password: 'test123' },
-    expectedStatus: 201,
+    expectedStatus: 200,
   },
   {
     id: 'auth-login-invalid',
